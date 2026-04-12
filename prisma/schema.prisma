@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  createdAt DateTime  @default(now()) @map("created_at")
+  licenses  License[]
+
+  @@map("users")
+}
+
+model License {
+  id         String      @id @default(uuid())
+  key        String      @unique // hashed license key
+  userId     String      @map("user_id")
+  maxDevices Int         @default(3) @map("max_devices")
+  expiresAt  DateTime?   @map("expires_at")
+  createdAt  DateTime    @default(now()) @map("created_at")
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  devices    Device[]
+  usageLogs  UsageLog[]
+
+  @@map("licenses")
+}
+
+model Device {
+  id        String   @id @default(uuid())
+  licenseId String   @map("license_id")
+  deviceId  String   @map("device_id") // hashed device identifier
+  createdAt DateTime @default(now()) @map("created_at")
+  license   License  @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+
+  @@unique([licenseId, deviceId])
+  @@map("devices")
+}
+
+model UsageLog {
+  id        String   @id @default(uuid())
+  licenseId String   @map("license_id")
+  deviceId  String   @map("device_id")
+  ip        String?
+  createdAt DateTime @default(now()) @map("created_at")
+  license   License  @relation(fields: [licenseId], references: [id], onDelete: Cascade)
+
+  @@map("usage_logs")
+}
