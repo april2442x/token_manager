@@ -10,6 +10,7 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "node prisma/seed.js",
+    "prisma:seed-once": "node scripts/seed-once.js",
     "prisma:studio": "prisma studio",
     "test:security": "node test-security.js",
     "admin": "node scripts/admin-cli.js",
