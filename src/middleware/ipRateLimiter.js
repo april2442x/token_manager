@@ -11,6 +11,20 @@ const rateLimit = require('express-rate-limit');
  * - Detailed error messages
  */
 
+// Helper to normalize IP addresses (IPv4 and IPv6)
+function normalizeIp(ip) {
+  if (!ip) return 'unknown';
+  
+  // For IPv6, take first 64 bits (4 segments)
+  if (ip.includes(':')) {
+    const segments = ip.split(':');
+    return segments.slice(0, 4).join(':');
+  }
+  
+  // For IPv4, return as-is
+  return ip;
+}
+
 // IP Whitelist (trusted IPs with no rate limits)
 const IP_WHITELIST = new Set([
   '127.0.0.1',
@@ -57,13 +71,12 @@ function blockBlacklistedIPs(req, res, next) {
 
 /**
  * Custom key generator that includes API key
+ * Uses proper IPv6 normalization to satisfy express-rate-limit requirements
  */
 function generateRateLimitKey(req) {
-  const ip = req.ip || req.connection.remoteAddress;
+  const ip = normalizeIp(req.ip || req.connection.remoteAddress);
   const apiKey = req.headers['x-api-key'] || 'anonymous';
-  // Normalize IPv6 addresses - use | separator to avoid conflicts with IPv6 colons
-  const normalizedIp = ip.includes(':') ? ip.split(':').slice(0, 4).join(':') : ip;
-  return `${normalizedIp}|${apiKey}`;
+  return `${ip}|${apiKey}`;
 }
 
 /**
@@ -104,7 +117,6 @@ const activationLimiter = rateLimit({
   message: 'Too many activation attempts from this IP',
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: generateRateLimitKey,
   skip: skipWhitelisted,
   handler: rateLimitHandler,
 });
@@ -118,7 +130,6 @@ const validationLimiter = rateLimit({
   message: 'Too many validation requests from this IP',
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: generateRateLimitKey,
   skip: skipWhitelisted,
   handler: rateLimitHandler,
 });
