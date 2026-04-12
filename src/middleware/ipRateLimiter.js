@@ -61,9 +61,9 @@ function blockBlacklistedIPs(req, res, next) {
 function generateRateLimitKey(req) {
   const ip = req.ip || req.connection.remoteAddress;
   const apiKey = req.headers['x-api-key'] || 'anonymous';
-  // Normalize IPv6 addresses
+  // Normalize IPv6 addresses - use | separator to avoid conflicts with IPv6 colons
   const normalizedIp = ip.includes(':') ? ip.split(':').slice(0, 4).join(':') : ip;
-  return `${normalizedIp}:${apiKey}`;
+  return `${normalizedIp}|${apiKey}`;
 }
 
 /**
