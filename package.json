@@ -12,7 +12,8 @@
     "prisma:seed": "node prisma/seed.js",
     "prisma:studio": "prisma studio",
     "test:security": "node test-security.js",
-    "admin": "node scripts/admin-cli.js"
+    "admin": "node scripts/admin-cli.js",
+    "license:create": "node scripts/create-license.js"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
