@@ -8,14 +8,13 @@ const crypto = require('crypto');
 // In production, store these in database with user associations
 const VALID_API_KEYS = new Map([
   // Format: [hashedKey, { name, userId, permissions, createdAt }]
-  // Example: API key "test-api-key-12345" hashed
   [
-    hashApiKey('test-api-key-12345'),
+    '2097df30d85791353172f0ecb31fd9b3cc6cb5278c52b1833dd2d191ed025b2f',
     {
-      name: 'Test API Key',
-      userId: 'test-user',
+      name: 'Telegram Video Downloader',
+      userId: 'telegram-video-app',
       permissions: ['activate', 'validate', 'deactivate'],
-      createdAt: new Date(),
+      createdAt: new Date('2026-04-13T08:21:17.245Z'),
     },
   ],
 ]);

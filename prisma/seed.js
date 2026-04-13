@@ -21,14 +21,27 @@ async function main() {
 
   console.log('✅ Created user:', user.email);
 
+  // Create Telegram Video Downloader user
+  const telegramUser = await prisma.user.upsert({
+    where: { email: 'telegram-video-app@example.com' },
+    update: {},
+    create: {
+      email: 'telegram-video-app@example.com',
+    },
+  });
+
+  console.log('✅ Created Telegram Video Downloader user:', telegramUser.email);
+
   // Generate and hash license keys
   const plainKey1 = generateLicenseKey();
   const plainKey2 = generateLicenseKey();
   const plainKey3 = generateLicenseKey();
+  const telegramKey = generateLicenseKey(); // New key for Telegram app
 
   const hashedKey1 = await hashLicenseKey(plainKey1);
   const hashedKey2 = await hashLicenseKey(plainKey2);
   const hashedKey3 = await hashLicenseKey(plainKey3);
+  const hashedTelegramKey = await hashLicenseKey(telegramKey);
 
   // Create licenses
   const license1 = await prisma.license.upsert({
@@ -64,6 +77,18 @@ async function main() {
     },
   });
 
+  // Create Telegram Video Downloader license
+  const telegramLicense = await prisma.license.upsert({
+    where: { key: hashedTelegramKey },
+    update: {},
+    create: {
+      key: hashedTelegramKey,
+      userId: telegramUser.id,
+      maxDevices: 5,
+      expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year
+    },
+  });
+
   console.log('\n✅ Created licenses:');
   console.log('─────────────────────────────────────────────────────');
   console.log(`License 1 (3 devices, expires in 1 year):`);
@@ -77,6 +102,10 @@ async function main() {
   console.log(`License 3 (5 devices, EXPIRED):`);
   console.log(`  Key: ${plainKey3}`);
   console.log(`  Expires: ${license3.expiresAt.toISOString()}`);
+  console.log('');
+  console.log('🎬 Telegram Video Downloader License (5 devices, 1 year):');
+  console.log(`  Key: ${telegramKey}`);
+  console.log(`  Expires: ${telegramLicense.expiresAt.toISOString()}`);
   console.log('─────────────────────────────────────────────────────');
   console.log('\n🎉 Seeding completed!');
 }
